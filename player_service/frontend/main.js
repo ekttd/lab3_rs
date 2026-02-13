@@ -45,4 +45,38 @@ async function loadPlayers() {
     }
 }
 
+document.getElementById('searchBtn').addEventListener('click', async () => {
+    const name = document.getElementById('searchName').value.trim();
+    const results = document.getElementById('searchResults');
+    results.innerHTML = '';
+
+    if (!name) {
+        results.innerHTML = '<li>Enter a name to search</li>';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${playerApi}/players/search/${encodeURIComponent(name)}`);
+        if (!response.ok) {
+            results.innerHTML = '<li>Error searching players</li>';
+            return;
+        }
+
+        const players = await response.json();
+        if (players.length === 0) {
+            results.innerHTML = '<li>No players found</li>';
+            return;
+        }
+
+        for (const player of players) {
+            const li = document.createElement('li');
+            li.textContent = `${player.name} | ${player.club} | ${player.position} | ID: ${player.id}`;
+            results.appendChild(li);
+        }
+    } catch (err) {
+        results.innerHTML = '<li>Server error</li>';
+        console.error(err);
+    }
+});
+
 loadPlayers();
