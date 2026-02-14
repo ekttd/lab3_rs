@@ -5,29 +5,33 @@
     <title>Statistics Service</title>
 </head>
 <body>
-    <h1>Statistics Service</h1>
+    <h1>Football Manager</h1>
 
-    <h2>Add Player Statistics</h2>
+    <h2>Add Statistics By Player Name</h2>
     <form id="statForm">
-        <input type="text" id="playerId" placeholder="Player ID" required>
-        <input type="number" id="goals" placeholder="Goals" required>
-        <input type="number" id="assists" placeholder="Assists" required>
-        <input type="number" id="matches" placeholder="Matches Played" required>
-        <button type="submit">Add Statistics</button>
+    <input type="text" id="name" placeholder="Player Name" required>
+    <input type="number" id="goals" placeholder="Goals" required>
+    <input type="number" id="assists" placeholder="Assists" required>
+    <input type="number" id="matches" placeholder="Matches Played" required>
+    <button type="submit">Add Statistics</button>
     </form>
 
-    <h2>Get Statistics by Player ID</h2>
-    <input type="text" id="searchPlayerId" placeholder="Enter Player ID">
+    <h2>Get statistics by player name</h2>
+    <input type="text" id="searchName" placeholder="Enter player name">
     <button id="searchStatBtn">Get Statistics</button>
     <ul id="statResult"></ul>
 
-    <h2>Get Full Player Info (Player + Statistics)</h2>
-    <input type="text" id="fullPlayerId" placeholder="Enter Player ID">
+    <h2>Get full player info</h2>
+    <input type="text" id="SearchFullName" placeholder="Enter player name">
     <button id="fullInfoBtn">Get Full Info</button>
     <ul id="fullResult"></ul>
 
     <h2>All Statistics</h2>
     <ul id="allStats"></ul>
+
+    <h2>Back to main page</h2>
+    <button onclick="goToStart()">Go to Player Service</button>
+
 
     <script src="main.js"></script>
 </body>

@@ -11,57 +11,91 @@ collection = db["statistics"]
 def serialize(stat):
     return {
         "id": str(stat["_id"]),
-        "player_id": stat["player_id"],
         "goals": stat["goals"],
         "assists": stat["assists"],
         "matches_played": stat["matches_played"]
     }
 
 
-# получить всю статистику
+
 @router.get("/statistics")
 def get_all_statistics():
     stats = collection.find()
     return [serialize(stat) for stat in stats]
 
 
-# добавить статистику игроку
-@router.post("/statistics")
-def create_statistics(stat: dict):
+@router.post("/statistics/by-name")
+def create_statistics_by_name(stat: dict):
 
-    # есть ли вообще такой игрок
-    response = requests.get(f"{PLAYER_SERVICE_URL}/players/{stat['player_id']}")
+    name = stat.get("name")
+
+    if not name:
+        raise HTTPException(status_code=400, detail="Name is required")
+
+    # запрос к player-service
+    response = requests.get(f"{PLAYER_SERVICE_URL}/players/search/{name}")
+
+    print(name)
 
     if response.status_code != 200:
-        raise HTTPException(status_code=404, detail="Player does not exist")
+        raise HTTPException(status_code=404, detail="Player service error")
 
-    result = collection.insert_one(stat)
-    return {"id": str(result.inserted_id)}
+    players = response.json()
 
-
-# получить статистику по игрока по id
-@router.get("/statistics/{player_id}")
-def get_player_statistics(player_id: str):
-    stat = collection.find_one({"player_id": player_id})
-
-    if not stat:
-        raise HTTPException(status_code=404, detail="Statistics not found")
-
-    return serialize(stat)
-
-
-# получить данные имя игрока + статистика
-@router.get("/full-statistics/{player_id}")
-def get_full_statistics(player_id: str):
-
-    player_response = requests.get(f"{PLAYER_SERVICE_URL}/players/{player_id}")
-
-    if player_response.status_code != 200:
+    if not players:
         raise HTTPException(status_code=404, detail="Player not found")
 
-    player = player_response.json()
+    player = players[0]
+    player_id = player["id"]
 
-    stat = collection.find_one({"player_id": player_id})
+    try:
+        obj_id = ObjectId(player_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid player ID format")
+
+    existing = collection.find_one({"_id": obj_id})
+    if existing:
+        raise HTTPException(status_code=400, detail="Statistics already exists")
+
+    stat_document = {
+        "_id": obj_id,
+        "goals": stat.get("goals", 0),
+        "assists": stat.get("assists", 0),
+        "matches_played": stat.get("matches_played", 0)
+    }
+
+    collection.insert_one(stat_document)
+
+    return {
+        "message": "Statistics created",
+        "player_id": player_id
+    }
+
+
+
+@router.get("/statistics/by-name/{name}")
+def get_statistics_by_name(name: str):
+
+    # запрос к player-service
+    response = requests.get(f"{PLAYER_SERVICE_URL}/players/search/{name}")
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=404, detail="Player service error")
+
+    players = response.json()
+
+    if not players:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    player = players[0]
+    player_id = player["id"]
+
+    try:
+        obj_id = ObjectId(player_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid player ID format")
+
+    stat = collection.find_one({"_id": obj_id})
 
     if not stat:
         raise HTTPException(status_code=404, detail="Statistics not found")

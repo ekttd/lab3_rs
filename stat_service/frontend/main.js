@@ -1,104 +1,156 @@
 const statisticsApi = 'http://127.0.0.1:8002';
 
+
 document.getElementById('statForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const name = document.getElementById('name').value.trim();
+    const goals = parseInt(document.getElementById('goals').value);
+    const assists = parseInt(document.getElementById('assists').value);
+    const matches = parseInt(document.getElementById('matches').value);
+
+    if (!name) {
+        alert("Enter player name");
+        return;
+    }
+
     const stat = {
-        player_id: document.getElementById('playerId').value,
-        goals: parseInt(document.getElementById('goals').value),
-        assists: parseInt(document.getElementById('assists').value),
-        matches_played: parseInt(document.getElementById('matches').value)
+        name: name,
+        goals: goals,
+        assists: assists,
+        matches_played: matches
     };
 
-    const response = await fetch(`${statisticsApi}/statistics`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(stat)
-    });
+    try {
+        const response = await fetch(`${statisticsApi}/statistics/by-name`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(stat)
+        });
 
-    if (!response.ok) {
-        alert("Error adding statistics (player may not exist)");
-        return;
+        if (!response.ok) {
+            const error = await response.json();
+            alert(error.detail || "Error creating statistics");
+            return;
+        }
+
+        const data = await response.json();
+        alert(`Statistics created for player ID: ${data.player_id}`);
+
+        document.getElementById('statForm').reset();
+        loadAllStatistics();
+
+    } catch (error) {
+        alert("Server error");
+        console.error(error);
     }
-
-    const data = await response.json();
-    alert(`Statistics added with ID: ${data.id}`);
-
-    document.getElementById('statForm').reset();
-    loadAllStatistics();
-});
-
-
-async function loadAllStatistics() {
-    const response = await fetch(`${statisticsApi}/statistics`);
-    const stats = await response.json();
-
-    const list = document.getElementById('allStats');
-    list.innerHTML = '';
-
-    if (stats.length === 0) {
-        list.innerHTML = '<li>No statistics yet</li>';
-        return;
-    }
-
-    for (const stat of stats) {
-        const li = document.createElement('li');
-        li.textContent = `Player ID: ${stat.player_id} | Goals: ${stat.goals} | Assists: ${stat.assists} | Matches: ${stat.matches_played}`;
-        list.appendChild(li);
-    }
-}
-
-
-document.getElementById('searchStatBtn').addEventListener('click', async () => {
-    const playerId = document.getElementById('searchPlayerId').value.trim();
-    const result = document.getElementById('statResult');
-    result.innerHTML = '';
-
-    if (!playerId) {
-        result.innerHTML = '<li>Enter Player ID</li>';
-        return;
-    }
-
-    const response = await fetch(`${statisticsApi}/statistics/${playerId}`);
-
-    if (!response.ok) {
-        result.innerHTML = '<li>Statistics not found</li>';
-        return;
-    }
-
-    const stat = await response.json();
-
-    const li = document.createElement('li');
-    li.textContent = `Goals: ${stat.goals} | Assists: ${stat.assists} | Matches: ${stat.matches_played}`;
-    result.appendChild(li);
 });
 
 
 document.getElementById('fullInfoBtn').addEventListener('click', async () => {
-    const playerId = document.getElementById('fullPlayerId').value.trim();
+    const name = document.getElementById('SearchFullName').value.trim();
     const result = document.getElementById('fullResult');
     result.innerHTML = '';
 
-    if (!playerId) {
-        result.innerHTML = '<li>Enter Player ID</li>';
+    if (!name) {
+        result.innerHTML = '<li>Enter player name</li>';
         return;
     }
 
-    const response = await fetch(`${statisticsApi}/full-statistics/${playerId}`);
+    try {
+        const response = await fetch(`${statisticsApi}/statistics/by-name/${encodeURIComponent(name)}`);
 
-    if (!response.ok) {
-        result.innerHTML = '<li>Player or statistics not found</li>';
-        return;
+        if (!response.ok) {
+            result.innerHTML = '<li>Player or statistics not found</li>';
+            return;
+        }
+
+        const data = await response.json();
+
+        const li = document.createElement('li');
+        li.textContent =
+            `Name: ${data.player.name} | Club: ${data.player.club} | Position: ${data.player.position} | ` +
+            `Goals: ${data.statistics.goals} | Assists: ${data.statistics.assists} | Matches: ${data.statistics.matches_played}`;
+
+        result.appendChild(li);
+
+    } catch (error) {
+        result.innerHTML = '<li>Server error</li>';
+        console.error(error);
     }
-
-    const data = await response.json();
-
-    const li = document.createElement('li');
-    li.textContent =
-        `Name: ${data.player.name} | Club: ${data.player.club} | ` +
-        `Goals: ${data.statistics.goals} | Assists: ${data.statistics.assists} | Matches: ${data.statistics.matches_played}`;
-
-    result.appendChild(li);
 });
+
+
+async function loadAllStatistics() {
+
+    const list = document.getElementById('allStats');
+    list.innerHTML = '';
+
+    try {
+        const response = await fetch(`${statisticsApi}/statistics`);
+        const stats = await response.json();
+
+        if (stats.length === 0) {
+            list.innerHTML = '<li>No statistics yet</li>';
+            return;
+        }
+
+        for (const stat of stats) {
+            const li = document.createElement('li');
+            li.textContent =
+                `Player name: ${stat.name} | ` +
+                `Goals: ${stat.goals} | ` +
+                `Assists: ${stat.assists} | ` +
+                `Matches: ${stat.matches_played}`;
+            list.appendChild(li);
+        }
+
+    } catch (error) {
+        list.innerHTML = '<li>Error loading statistics</li>';
+        console.error(error);
+    }
+}
+
+document.getElementById('searchStatBtn').addEventListener('click', async () => {
+
+    const name = document.getElementById('searchName').value.trim();
+    const result = document.getElementById('statResult');
+    result.innerHTML = '';
+
+    if (!name) {
+        result.innerHTML = '<li>Enter Player Name</li>';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${statisticsApi}/statistics/by-name/${encodeURIComponent(name)}`);
+
+        if (!response.ok) {
+            result.innerHTML = '<li>Statistics not found</li>';
+            return;
+        }
+
+        const data = await response.json();
+
+        const li = document.createElement('li');
+        li.textContent =
+            `Name: ${data.player.name} | ` +
+            `Club: ${data.player.club} | ` +
+            `Goals: ${data.statistics.goals} | ` +
+            `Assists: ${data.statistics.assists} | ` +
+            `Matches: ${data.statistics.matches_played}`;
+
+        result.appendChild(li);
+
+    } catch (error) {
+        result.innerHTML = '<li>Server error</li>';
+        console.error(error);
+    }
+});
+
+
+function goToStart() {
+    window.location.href = "http://127.0.0.1:5501/index.html";
+}
 
 loadAllStatistics();

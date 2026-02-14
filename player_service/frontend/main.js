@@ -25,6 +25,10 @@ document.getElementById('playerForm').addEventListener('submit', async (e) => {
     document.getElementById('playerForm').reset();
 });
 
+function goToStatistics() {
+    window.location.href = STAT_SERVICE;
+}
+
 
 async function loadPlayers() {
     const response = await fetch(`${playerApi}/players`);
@@ -78,5 +82,6 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
         console.error(err);
     }
 });
+
 
 loadPlayers();
