@@ -1,30 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Football Manager</title>
+  <meta charset="UTF-8" />
+  <title>Football Manager — Players</title>
+  <link rel="icon" href="static/favicon.ico">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0f766e;
+      --accent-strong:#0b6b60;
+      --shadow: 0 6px 18px rgba(15,118,110,0.08);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:#111827;
+      line-height:1.4;
+      padding:28px;
+    }
+    .container{
+      max-width:1000px;
+      margin:0 auto;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    header h1{
+      margin:0;
+      font-size:22px;
+      color:var(--accent-strong);
+    }
+    .grid{
+      display:grid;
+      gap:16px;
+      grid-template-columns: 1fr 420px;
+      align-items:start;
+    }
+    .card{
+      background:var(--card);
+      padding:16px;
+      border-radius:10px;
+      box-shadow:var(--shadow);
+    }
+    form input, form button{
+      display:block;
+      width:100%;
+      padding:10px 12px;
+      margin-bottom:10px;
+      border-radius:8px;
+      border:1px solid #e6edf0;
+      font-size:14px;
+      box-sizing:border-box;
+    }
+    form button{
+      background:var(--accent);
+      color:white;
+      border:none;
+      cursor:pointer;
+      transition:background .15s ease;
+    }
+    form button:hover{ background:var(--accent-strong); }
+
+    .section-title{ font-size:16px; margin:0 0 8px 0; color:#0f172a; }
+
+    ul.players{
+      list-style:none;
+      padding:0;
+      margin:0;
+    }
+    ul.players li{
+      padding:10px;
+      border-bottom:1px solid #f1f5f9;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-size:14px;
+    }
+    .small{
+      font-size:13px; color:var(--muted);
+    }
+    .actions{
+      display:flex; gap:8px;
+    }
+    .btn-ghost{
+      background:transparent;
+      border:1px solid #e6edf0;
+      padding:6px 10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .search-area{ display:flex; gap:8px; margin-bottom:12px; }
+    .search-area input{ flex:1; }
+    footer{ margin-top:18px; font-size:13px; color:var(--muted); text-align:center; }
+    @media (max-width:900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Football Manager</h1>
+    <header>
+      <h1>Football Manager</h1>
+      <div class="small">Player Service</div>
+    </header>
     
-    <h2>Add Player</h2>
-    <form id="playerForm">
-        <input type="text" id="name" placeholder="Name" required>
-        <input type="number" id="age" placeholder="Age" required>
-        <input type="text" id="club" placeholder="Club" required>
-        <input type="text" id="position" placeholder="Position" required>
-        <button type="submit">Add Player</button>
-    </form>
+    <div class="grid">
+      <!-- left: add + list -->
+      <div>
+        <div class="card">
+          <div class="section-title">Add Player</div>
+          <form id="playerForm">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="number" id="age" placeholder="Age" required>
+            <input type="text" id="club" placeholder="Club" required>
+            <input type="text" id="position" placeholder="Position" required>
+            <button type="submit">Add Player</button>
+          </form>
+        </div>
 
-    <h2>Search Player by Name</h2>
-    <input type="text" id="searchName" placeholder="Enter name">
-    <button id="searchBtn">Search</button>
-    <ul id="searchResults"></ul>
-    
-    <h2>Players List</h2>
-    <ul id="playersList"></ul>
-    <h2>Statistics</h2>
-    <button onclick="goToStatistics()">Go to Statistics Service</button>
+        <div class="card" style="margin-top:12px;">
+          <div class="section-title">Search Player</div>
+          <div class="search-area">
+            <input type="text" id="searchName" placeholder="Enter name">
+            <button id="searchBtn" class="btn-ghost">Search</button>
+          </div>
+          <ul id="searchResults" class="players"></ul>
+        </div>
+      </div>
+
+      <!-- right: players list + nav -->
+      <aside>
+        <div class="card">
+          <div class="section-title">Players List</div>
+          <ul id="playersList" class="players"></ul>
+        </div>
+
+        <div class="card" style="margin-top:12px; text-align:center;">
+          <div class="section-title">Statistics</div>
+          <button onclick="goToStatistics()" style="padding:10px 14px; border-radius:8px; background:#0b6b60; color:#fff; border:none; cursor:pointer;">Go to Statistics Service</button>
+        </div>
+      </aside>
+    </div>
+    </div>
 
 
     <script src="main.js"></script>
