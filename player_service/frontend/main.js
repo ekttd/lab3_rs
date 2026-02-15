@@ -56,7 +56,7 @@ async function loadPlayers() {
 
     for (const player of players) {
         const li = document.createElement('li');
-        li.textContent = `${player.name}, Age: ${player.age}, Club: ${player.club}, Position: ${player.position}`;
+        li.textContent = `${player.name} | Age: ${player.age} | Club: ${player.club} | Position: ${player.position}`;
         list.appendChild(li);
     }
 }

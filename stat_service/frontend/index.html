@@ -11,8 +11,8 @@
   --bg:#f6f8fb;
   --card:#ffffff;
   --muted:#6b7280;
-  --accent:#0f766e;
-  --accent-strong:#0b6b60;
+  --accent:#8568e5;
+  --accent-strong:#420f78;
   --shadow: 0 6px 18px rgba(15,118,110,0.08);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
 }
@@ -29,23 +29,21 @@ body{
   margin:0 auto;
 }
 
-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:18px;
+header {
+  text-align: center; 
+  margin-bottom: 18px;
 }
 
 header h1{
-  margin:0;
-  font-size:22px;
+  margin:12;
+  font-size:28px;
   color:var(--accent-strong);
 }
 
 .grid{
   display:grid;
   gap:16px;
-  grid-template-columns: 1fr 420px;
+  grid-template-columns: 1fr 470px;
   align-items:start;
 }
 
@@ -110,14 +108,37 @@ ul.stats li{
   flex:1;
 }
 
-.btn-ghost{
-  background:transparent;
-  border:1px solid #e6edf0;
-  padding:6px 10px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:13px;
+.btn-ghost {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s ease;
 }
+
+
+.btn-ghost:hover {
+  background: var(--accent-strong); 
+}
+
+.btn-accent {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-accent:hover {
+  background: var(--accent-strong);
+}
+
+
 
 @media (max-width:900px){
   .grid{ grid-template-columns:1fr; }
@@ -129,8 +150,8 @@ ul.stats li{
 <div class="container">
 
 <header>
-  <h1>Football Manager</h1>
-  <div class="small">Statistics Service</div>
+  <h1>Statistics Service</h1>
+  
 </header>
 
 <div class="grid">
@@ -171,18 +192,18 @@ ul.stats li{
 
   <aside>
 
-    <div class="card">
-      <div class="section-title">All Statistics</div>
+    <div class="card" >
+      <div class="section-title" style="text-align:center;">Statistics</div>
       <ul id="allStats" class="stats"></ul>
     </div>
 
     <div class="card" style="margin-top:12px; text-align:center;">
-      <div class="section-title">Navigation</div>
-      <button onclick="goToStart()"
-        style="padding:10px 14px; border-radius:8px; background:#0b6b60; color:#fff; border:none; cursor:pointer;">
-        Back to Player Service
+      <div class="section-title">Info</div>
+      <button class="btn-accent" onclick="goToStart()">
+        Go to Players Service
       </button>
     </div>
+
 
   </aside>
 

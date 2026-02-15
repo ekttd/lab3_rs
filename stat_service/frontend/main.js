@@ -117,7 +117,7 @@ async function loadAllStatistics() {
         for (const stat of stats) {
             const li = document.createElement('li');
             li.textContent =
-                `Name: ${stat.name} | ` +
+                `${stat.name} | ` +
                 `Goals: ${stat.goals} | ` +
                 `Assists: ${stat.assists} | ` +
                 `Matches: ${stat.matches_played}`;
