@@ -1,6 +1,6 @@
 Приложение по поиску статистики футболистов.
 
-В начале надо создать .env с MONGO_URL, DATABASE_NAME=players_db, SERVICE_PORT=8001
+В начале надо создать .env с MONGO_URL, DATABASE_NAME=players_db, SERVICE_PORT=8001, STATISTICS_SERVICE_URL, PLAYER_SERVICE_URL
 
 Запуск:
 1. Виртуальное окружение
