@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 from .config import PLAYER_SERVICE_URL
 from .database import db
+from .security import verify_token
 import requests
 
 
@@ -20,13 +21,13 @@ def serialize(stat):
 
 
 @router.get("/statistics")
-def get_all_statistics():
+def get_all_statistics(user=Depends(verify_token)):
     stats = collection.find()
     return [serialize(stat) for stat in stats]
 
 
 @router.post("/statistics")
-def create_statistics(stat: dict):
+def create_statistics(stat: dict, user=Depends(verify_token)):
     name = stat.get("name")
     if not name:
         raise HTTPException(status_code=400, detail="Name is required")
@@ -68,7 +69,7 @@ def create_statistics(stat: dict):
     }
 
 @router.get("/statistics/by-name/{name}")
-def get_statistics_by_name(name: str):
+def get_statistics_by_name(name: str, user=Depends(verify_token)):
 
     stat = collection.find_one({
         "name": {"$regex": f"^{name}$", "$options": "i"}
@@ -82,7 +83,7 @@ def get_statistics_by_name(name: str):
 
 
 @router.get("/statistics/full/{name}")
-def get_full_player_info(name: str):
+def get_full_player_info(name: str, user=Depends(verify_token)):
 
     stat = collection.find_one({
         "name": {"$regex": f"^{name}$", "$options": "i"}
@@ -132,7 +133,7 @@ def get_full_player_info(name: str):
 
 # поиск по id для сервиса игроков
 @router.get("/statistics/{stat_id}")
-def get_statistics_by_id(stat_id: str):
+def get_statistics_by_id(stat_id: str, user=Depends(verify_token)):
     stat = collection.find_one({"_id": ObjectId(stat_id)})
 
     if not stat:

@@ -5,7 +5,7 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 
-app = FastAPI(title="Player Service")
+app = FastAPI(title="Authentificasion Service")
 
 app.add_middleware(
     CORSMiddleware,

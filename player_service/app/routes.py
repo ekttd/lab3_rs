@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 from .database import db
 from .config import STATISTICS_SERVICE_URL
+from .security import verify_token
 import requests
 
 
@@ -20,20 +21,20 @@ def serialize(player):
 
 
 @router.get("/players")
-def get_all_players():
+def get_all_players(user=Depends(verify_token)):
     players = collection.find()
     return [serialize(player) for player in players]
 
 
 @router.post("/players")
-def create_player(player: dict):
+def create_player(player: dict, user=Depends(verify_token)):
     name = player.get("name")
     if not name:
         raise HTTPException(status_code=400, detail="Name is required")
 
     player_id = None
 
-    # 1. Проверяем statistics-service по имени (полное совпадение)
+    # Проверяем statistics-service
     try:
         response = requests.get(
             f"{STATISTICS_SERVICE_URL}/statistics/by-name/{name}",
@@ -43,7 +44,6 @@ def create_player(player: dict):
         if response.status_code == 200:
             stats = response.json()
 
-            # endpoint может вернуть список или объект
             if isinstance(stats, list) and stats:
                 player_id = stats[0]["id"]
             elif isinstance(stats, dict):
@@ -81,7 +81,7 @@ def create_player(player: dict):
 
 
 @router.get("/players/{player_id}")
-def get_player(player_id: str):
+def get_player(player_id: str, user=Depends(verify_token)):
     player = collection.find_one({"_id": ObjectId(player_id)})
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
@@ -89,13 +89,13 @@ def get_player(player_id: str):
 
 
 @router.get("/players/search/{name}")
-def find_by_name(name: str):
+def find_by_name(name: str, user=Depends(verify_token)):
     players = collection.find({"name": {"$regex": f"^{name}$", "$options": "i"}})
     return [serialize(p) for p in players]
 
 
 @router.get("/players/full/{name}")
-def get_full_player_info(name: str):
+def get_full_player_info(name: str, user=Depends(verify_token)):
     player = collection.find_one({
         "name": {"$regex": f"^{name}$", "$options": "i"}
     })
@@ -140,5 +140,5 @@ def get_full_player_info(name: str):
 
     return {
         "player": player_data,
-        "statistics": statistics_data 
+        "statistics": statistics_data
     }
