@@ -2,11 +2,15 @@ const playerApi = 'http://127.0.0.1:8001';
 const statPage = 'http://127.0.0.1:5500';
 const authPage = 'http://127.0.0.1:5502';
 
-const token = localStorage.getItem("token");
-
-if (!token) {
-    window.location.href = authPage;
+const urlParams = new URLSearchParams(window.location.search);
+const tokenFromUrl = urlParams.get("token");
+if (tokenFromUrl) {
+    localStorage.setItem("token", tokenFromUrl);
+    window.history.replaceState({}, document.title, "/");
 }
+
+const token = localStorage.getItem("token");
+if (!token) window.location.href = authPage;
 
 function authHeaders(contentType = false) {
     const headers = {
@@ -20,7 +24,6 @@ function authHeaders(contentType = false) {
     return headers;
 }
 
-// ================= CREATE PLAYER =================
 document.getElementById('playerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -60,41 +63,36 @@ document.getElementById('playerForm').addEventListener('submit', async (e) => {
     }
 });
 
-// ================= LOAD PLAYERS =================
+
 async function loadPlayers() {
     try {
-        const response = await fetch(`${playerApi}/players`, {
+        const res = await fetch(`${playerApi}/players`, {
             headers: authHeaders()
         });
 
-        if (response.status === 403) {
-            logout();
+        if (res.status === 403) {
+            alert("Token invalid or expired. Redirecting to login.");
+            localStorage.removeItem("token");
+            window.location.href = authPage;
             return;
         }
 
-        const players = await response.json();
-
-        const list = document.getElementById('playersList');
+        const players = await res.json();
+        const list = document.getElementById("playersList");
         list.innerHTML = '';
 
-        if (players.length === 0) {
-            list.innerHTML = '<li>No players yet</li>';
-            return;
-        }
-
-        for (const player of players) {
-            const li = document.createElement('li');
-            li.textContent =
-                `${player.name} | Age: ${player.age} | Club: ${player.club} | Position: ${player.position}`;
+        players.forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = `${p.name} | Age: ${p.age} | Club: ${p.club} | Position: ${p.position}`;
             list.appendChild(li);
-        }
+        });
 
     } catch (err) {
         console.error(err);
     }
 }
 
-// ================= SEARCH =================
+
 document.getElementById('searchBtn').addEventListener('click', async () => {
     const name = document.getElementById('searchName').value.trim();
     const results = document.getElementById('searchResults');
@@ -136,7 +134,6 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
     }
 });
 
-// ================= FULL INFO =================
 document.getElementById('fullBtn').addEventListener('click', async () => {
     const name = document.getElementById('fullName').value.trim();
     const results = document.getElementById('fullResults');
@@ -181,7 +178,7 @@ document.getElementById('fullBtn').addEventListener('click', async () => {
     }
 });
 
-// ================= NAVIGATION =================
+
 function goToStatistics() {
     window.location.href = statPage;
 }
